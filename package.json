@@ -1,0 +1,24 @@
+{
+  "name": "cs340_portfolio_fixed",
+  "version": "1.0.0",
+  "description": "cs340_portfolio_assignment",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/matthewholmstrom/CS340_Portfolio_Fixed.git"
+  },
+  "author": "holmstrm",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/matthewholmstrom/CS340_Portfolio_Fixed/issues"
+  },
+  "homepage": "https://github.com/matthewholmstrom/CS340_Portfolio_Fixed#readme",
+  "dependencies": {
+    "express": "^4.21.1",
+    "forever": "^4.0.3",
+    "mysql": "^2.18.1"
+  }
+}
