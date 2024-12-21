@@ -1,0 +1,231 @@
+<!-- orderHasProducts.hbs -->
+
+{{!-- 
+Citations and Attributions:
+
+Base Project:
+- Source: CS 340 Node.js Starter App (Step 8)
+- URL: https://github.com/osu-cs340-ecampus/nodejs-starter-app
+- Usage: Basic template structure and form layouts
+
+External Resources:
+- W3Schools HTML Forms (https://www.w3schools.com/html/html_forms.asp)
+- Usage: Form layout implementation
+
+- MDN Web Docs - HTML Tables (https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table)
+- Usage: Table structure best practices
+
+- Bootstrap v5.1 Alert Components (https://getbootstrap.com/docs/5.1/components/alerts/)
+- Usage: Success/error message display system
+
+- MDN Web Docs - Introduction to events (https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/Events)
+- Usage: DOM event handling implementation
+--}}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/style.css">
+    <title>Manage Order-Product Associations</title>
+</head>
+<body>
+    
+    <div class="container">
+        <nav>
+            <a href="/manageLinks">Home</a> |
+            <a href="/">Customers</a> |
+            <a href="/productBrands">Brands</a> |
+            <a href="/storeLocations">Locations</a> |
+            <a href="/products">Products</a> |
+            <a href="/orders">Orders</a> |
+            <a href="/orderHasProducts">Product Orders</a>
+        </nav>
+        <h1>Manage Product Orders</h1>
+
+        <!-- Order-Product Associations List Table -->
+        <h2>Product Order List</h2>
+        
+        {{#if successMessage}}
+            <div class="success centered">{{successMessage}}</div>
+        {{/if}}
+        
+        <table id="orderHasProducts-table" border="1" cellpadding="5">
+            <thead>
+                <tr>
+                    <th>Update</th>
+                    <th>Delete</th>
+                    <th>Order ID</th>
+                    <th>Product ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{!-- Iterate through each order-product relationship in the data array --}}
+                {{#each data}}
+                <tr data-value="{{this.orderID}}-{{this.productID}}">
+                    <td>
+                        {{!-- Update link that opens and pre-populates the update form --}}
+                        <a href="#updateOrderHasProductForm" 
+                           {{!-- Calls JavaScript function to populate the forms fields --}}
+                           onclick="populateUpdateForm(this)"
+                           {{!-- Attributes keep the relationship's information --}}
+                           data-order-id="{{this.orderID}}"
+                           data-product-id="{{this.productID}}">
+                           Update
+                        </a>
+                    </td>
+                    <td>
+                        {{!-- Delete link with the M:N key (orderID-productID) as an attribute --}}
+                        <a href="javascript:void(0);" 
+                           class="delete-btn" 
+                           data-id="{{this.orderID}}-{{this.productID}}">Delete</a>
+                    </td>
+                    {{!-- Display Order ID in right-aligned table cell --}}
+                    <td align="right">{{this.orderID}}</td>
+                    {{!-- Display Product ID in right-aligned table cell --}}
+                    <td align="right">{{this.productID}}</td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+
+        <!-- Add Order-Product Association Form -->
+        <h2 id="addOrderHasProductForm">Add Product Order</h2>
+        <form action="/add-orderHasProduct-form" method="POST">
+            <label>Order ID: 
+                <select id="orderID" name="orderID">
+                    <!-- Add options dynamically -->
+                </select>
+            </label><br>
+            <label>Product ID: 
+                <select id="productID" name="productID">
+                    <!-- Add options dynamically -->
+                </select>
+            </label><br>
+            <button type="submit">Add</button>
+        </form>
+
+        <!-- Updating form for existing Order-Product relationships -->
+        <h2 id="updateOrderHasProductForm">Update Product Order</h2>
+        <form id="update-form" action="/update-orderHasProduct-form" method="POST" onsubmit="return validateUpdateForm()">
+            <!-- Dropdown showing current Order ID -->
+            <label>Current Order ID: 
+                <select id="currentOrderID" name="currentOrderID" readonly>
+                    <!-- Options populated with JavaScript -->
+                </select>
+            </label><br>
+
+            <!-- Dropdown showing current Product ID -->
+            <label>Current Product ID: 
+                <select id="currentProductID" name="currentProductID" readonly>
+                    <!-- Options populated with JavaScript -->
+                </select>
+            </label><br>
+
+            <!-- Dropdown for selecting a new Order ID -->
+            <label>New Order ID: 
+                <select id="newOrderID" name="newOrderID">
+                    <!-- Options dynamically populated from the database -->
+                </select>
+            </label><br>
+
+            <!-- Dropdown for selecting a new Product ID -->
+            <label>New Product ID: 
+                <select id="newProductID" name="newProductID">
+                    <!-- Options dynamically populated from the database -->
+                </select>
+            </label><br>
+
+            <!-- Submit button triggers validation before submission -->
+            <button type="submit">Update</button>
+        </form>
+
+        <!-- Include necessary scripts -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="/js/orderHasProducts.js"></script>
+
+        <!-- JavaScript Functions -->
+        <script>
+            function populateUpdateForm(element) {
+                const orderID = element.getAttribute('data-order-id');
+                const productID = element.getAttribute('data-product-id');
+
+                document.getElementById('currentOrderID').value = orderID;
+                document.getElementById('currentProductID').value = productID;
+                document.getElementById('newOrderID').value = orderID;
+                document.getElementById('newProductID').value = productID;
+            }
+
+            /*
+             * Dropdown Population Implementation:
+             * - Source: Based on CS 340 Node.js Starter App (Step 8)
+             * - Mods: Added dynamic dropdown population using fetch API
+             * - Usage: Populate select elements with order and product data
+             */
+
+            // Fetch and populate dropdowns with data from the server
+            function populateDropdowns() {
+                const orderIDSelect = document.getElementById('orderID');
+                const productIDSelect = document.getElementById('productID');
+                const newOrderIDSelect = document.getElementById('newOrderID');
+                const newProductIDSelect = document.getElementById('newProductID');
+                const currentOrderIDSelect = document.getElementById('currentOrderID');
+                const currentProductIDSelect = document.getElementById('currentProductID');
+
+                // Clear existing options and add a blank option at the top
+                orderIDSelect.innerHTML = '<option value=""></option>';
+                productIDSelect.innerHTML = '<option value=""></option>';
+                newOrderIDSelect.innerHTML = '<option value=""></option>';
+                newProductIDSelect.innerHTML = '<option value=""></option>';
+                currentOrderIDSelect.innerHTML = '<option value=""></option>';
+                currentProductIDSelect.innerHTML = '<option value=""></option>';
+
+                /*
+                 * Fetching Implementation:
+                 * - Source: MDN Web Docs - Fetch API
+                 * - URL: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
+                 * - Used to dynamically populate the dropdown menus with data from the server
+                */
+
+                // Fetch and populate options dynamically
+                fetch('/get-orders')
+                    .then(response => response.json())
+                    .then(data => {
+                        data.orders.forEach(order => {
+                            const option = document.createElement('option');
+                            option.value = order.orderID;
+                            option.textContent = order.orderID;
+                            orderIDSelect.appendChild(option);
+                            newOrderIDSelect.appendChild(option.cloneNode(true));
+                            currentOrderIDSelect.appendChild(option.cloneNode(true));
+                        });
+                    });
+
+                fetch('/get-products')
+                    .then(response => response.json())
+                    .then(data => {
+                        data.products.forEach(product => {
+                            const option = document.createElement('option');
+                            option.value = product.productID;
+                            option.textContent = product.productID;
+                            productIDSelect.appendChild(option);
+                            newProductIDSelect.appendChild(option.cloneNode(true));
+                            currentProductIDSelect.appendChild(option.cloneNode(true));
+                        });
+                    });
+            }
+
+            /*
+             * DOM Event Handling Implementation:
+             * - Source: MDN Web Docs - Introduction to events
+             * - URL: https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/Events
+             * - Used to call the populateDropdowns function when the DOM is loaded
+            */
+
+            // Call the populateDropdowns function when the DOM is loaded
+            document.addEventListener('DOMContentLoaded', populateDropdowns);
+        </script>
+    </div>
+</body>
+</html>

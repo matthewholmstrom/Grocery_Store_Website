@@ -1,0 +1,146 @@
+<!-- orders.hbs -->
+
+{{!-- 
+Citations and Attributions:
+
+Base Project:
+- Source: CS 340 Node.js Starter App (Step 8)
+- URL: https://github.com/osu-cs340-ecampus/nodejs-starter-app
+- Usage: Basic template structure and form layouts
+
+External Resources:
+- W3Schools HTML Forms (https://www.w3schools.com/html/html_forms.asp)
+- Usage: Form layout implementation
+
+- MDN Web Docs - HTML Tables (https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table)
+- Usage: Table structure best practices
+
+- Bootstrap v5.1 Alert Components (https://getbootstrap.com/docs/5.1/components/alerts/)
+- Usage: Success/error message display system
+
+- MDN Web Docs - Introduction to events (https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/Events)
+- Usage: DOM event handling implementation
+--}}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/style.css">
+    <title>Manage Orders - Store Management</title>
+</head>
+<body>
+    
+    <div class="container">
+        <nav>
+            <a href="/manageLinks">Home</a> |
+            <a href="/">Customers</a> |
+            <a href="/productBrands">Brands</a> |
+            <a href="/storeLocations">Locations</a> |
+            <a href="/products">Products</a> |
+            <a href="/orders">Orders</a> |
+            <a href="/orderHasProducts">Product Orders</a>
+        </nav>
+        <h1>Manage Orders</h1>
+
+        <!-- Order List Table -->
+        <h2>Order List</h2>
+
+        <!-- Message Display Implementation -->
+        {{#if successMessage}}
+            <div class="success centered">{{successMessage}}</div>
+        {{/if}}
+
+        <table border="1" cellpadding="5">
+            <tr>
+                <th><a href="#addOrderForm">New</a></th>
+                <th></th>
+                <th>Order ID</th>
+                <th>Customer ID</th>
+                <th>Location ID</th>
+                <th>Sales Date</th>
+                <th>Total Price</th>
+            </tr>
+
+            <tbody>
+
+                <!-- Loop through each order and display the data in a table row -->
+                {{#each data}}
+                <tr>
+                    <!-- Update and Delete links for each order -->
+                    <td><a href="javascript:void(0);" class="update-order" data-order='{{json this}}'>Update</a></td>
+                    <td><a href="javascript:void(0);" class="delete-order" data-order-id="{{this.orderID}}">Delete</a></td>
+                    <td align="right">{{this.orderID}}</td>
+                    <td>{{this.customerID}}</td>
+                    <td align="right">{{this.locationID}}</td>
+                    <td align="right">{{this.saleDate}}</td>
+                    <td align="right">{{this.totalPrice}}</td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+
+        <!-- Add Order Form -->
+        <h2 id="addOrderForm">Add Order</h2>
+        <form action="/add-order-form" method="POST">
+            <label>Order ID: <input type="number" name="orderID" min="1" required></label><br>
+            <label>Customer ID: 
+                <!-- Dropdown menu for selecting a customer ID -->
+                <select name="customerID" required>
+                    <option value="">Customer ID</option>
+                    {{#each customers}}
+                    <option value="{{this.customerID}}">{{this.customerID}}</option>
+                    {{/each}}
+                </select>
+            </label><br>
+            <label>Location ID: 
+                <!-- Dropdown menu for selecting a location ID -->
+                <select name="locationID" required>
+                    <option value="">Location ID</option>
+                    {{#each locations}}
+                    <option value="{{this.locationID}}">{{this.locationID}}</option>
+                    {{/each}}
+                </select>
+            </label><br>
+            <!-- Input field for sales date -->
+            <label>Sales Date: <input type="datetime-local" name="saleDate" required></label><br>
+            <label>Total Price: <input type="number" name="totalPrice" step="0.01" required></label><br>
+            <button type="submit">Add Order</button>
+        </form>
+
+        <!-- Update Order Form -->
+        <h2 id="updateOrderForm">Update Order</h2>
+        <form id="updateOrderForm" action="/update-order-form" method="POST">
+            <input type="hidden" name="currentOrderID" id="currentOrderID">
+            <label>Order ID: <input type="number" name="newOrderID" id="newOrderID" min="1" required></label><br>
+            <label>Customer ID: 
+                <!-- Dropdown menu for selecting a customer ID -->
+                <select name="customerID" id="updateCustomerID">
+                    <option value="">NULL</option>
+                    {{#each customers}}
+                    <option value="{{this.customerID}}">{{this.customerID}}</option>
+                    {{/each}}
+                </select>
+            </label><br>
+            <label>Location ID: 
+                <!-- Dropdown menu for selecting a location ID -->
+                <select name="locationID" id="updateLocationID" required>
+                    <option value="">Location ID</option>
+                    {{#each locations}}
+                    <option value="{{this.locationID}}">{{this.locationID}}</option>
+                    {{/each}}
+                </select>
+            </label><br>
+            <!-- Input field for sales date -->
+            <label>Sales Date: <input type="datetime-local" name="saleDate" id="updateSaleDate" required></label><br>
+            <label>Total Price: <input type="number" name="totalPrice" id="updateTotalPrice" step="0.01" required></label><br>
+            <button type="submit">Update Order</button>
+        </form>
+
+        <!-- Include necessary scripts -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="/js/orders.js"></script>
+    </div>
+</body>
+</html>

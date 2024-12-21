@@ -1,0 +1,174 @@
+<!-- productBrands.hbs -->
+
+{{!-- 
+Citations and Attributions:
+
+Base Project:
+- Source: CS 340 Node.js Starter App (Step 8)
+- URL: https://github.com/osu-cs340-ecampus/nodejs-starter-app
+- Usage: Basic template structure and form layouts
+
+External Resources:
+- W3Schools HTML Forms (https://www.w3schools.com/html/html_forms.asp)
+- Usage: Form layout implementation
+
+- MDN Web Docs - HTML Tables (https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table)
+- Usage: Table structure best practices
+
+- Bootstrap v5.1 Alert Components (https://getbootstrap.com/docs/5.1/components/alerts/)
+- Usage: Success/error message display system
+
+- MDN Web Docs - Introduction to events (https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/Events)
+- Usage: DOM event handling implementation
+--}}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/style.css">
+    <title>Manage Product Brands - Store Management</title>
+</head>
+<body>
+    
+    <div class="container">
+        <nav>
+            <a href="/manageLinks">Home</a> |
+            <a href="/">Customers</a> |
+            <a href="/productBrands">Brands</a> |
+            <a href="/storeLocations">Locations</a> |
+            <a href="/products">Products</a> |
+            <a href="/orders">Orders</a> |
+            <a href="/orderHasProducts">Product Orders</a>
+        </nav>
+        <h1>Manage Brands</h1>
+
+        <!-- Product Brands List Table -->
+        <h2>Brand List</h2>
+
+        <!-- Message Display Implementation -->
+        {{#if errorMessage}}
+            <div class="error">{{errorMessage}}</div>
+        {{/if}}
+        
+        {{#if successMessage}}
+            <div class="success centered">{{successMessage}}</div>
+        {{/if}}
+
+        <table id="productBrands-table" border="1" cellpadding="5">
+            <thead>
+                <tr>
+                    <th><a href="#addProductBrandForm">New</a></th>
+                    <th></th>
+                    <th>Brand ID</th>
+                    <th>Brand Name</th>
+                    <th>Brand Country</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Loop through each product brand and display the data in a table row -->
+                {{#each data}}
+                <tr data-value="{{this.brandID}}">
+                    <td>
+                        <a href="#updateProductBrandForm" 
+                           onclick="populateUpdateForm(this)"
+                           data-brand-id="{{this.brandID}}"
+                           data-brand-name="{{this.brandName}}"
+                           data-brand-country="{{this.brandCountry}}">
+                           Update
+                        </a>
+                    </td>
+                    <td>
+                        <!-- Delete link for each product brand -->
+                        <a href="javascript:void(0);" onclick="deleteProductBrand('{{this.brandID}}')">Delete</a>
+                    </td>
+                    <!-- Display product brand data -->
+                    <td align="right">{{this.brandID}}</td>
+                    <td>{{this.brandName}}</td>
+                    <td>{{this.brandCountry}}</td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+
+        <!-- Add Product Brand Form -->
+        <h2 id="addProductBrandForm">Add Brand</h2>
+        <form action="/add-productBrand-form" method="POST">
+            <!-- Form fields for adding a new product brand -->
+            <label>Brand ID: <input type="number" name="brandID" required></label><br>
+            <label>Brand Name: <input type="text" name="brandName" required></label><br>
+            <label>Brand Country: <input type="text" name="brandCountry"></label><br>
+            <button type="submit">Add Brand</button>
+        </form>
+
+        <!-- Update Product Brand Form -->
+        <h2 id="updateProductBrandForm">Update Brand</h2>
+        <!-- Form fields for updating an existing product brand -->
+        <form id="update-form" action="/update-productBrand-form" method="POST" onsubmit="return validateUpdateForm()">
+            <label>Current Brand ID: 
+                <input type="number" id="currentBrandID_display" name="currentBrandID_display" readonly>
+                <input type="hidden" id="currentBrandID" name="currentBrandID">
+            </label><br>
+            <label>New Brand ID: 
+                <input type="number" id="newBrandID" name="newBrandID" required>
+            </label><br>
+            <label>Brand Name: 
+                <input type="text" id="updateBrandName" name="brandName" required>
+            </label><br>
+            <label>Brand Country: 
+                <input type="text" id="updateBrandCountry" name="brandCountry">
+            </label><br>
+            <button type="submit">Update Brand</button>
+        </form>
+
+        <!-- Necessary scripts -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="/js/productBrands.js"></script>
+
+        <!-- JavaScript Functions -->
+        <script>
+            // Function to populate the update form with existing product brand data
+            function populateUpdateForm(element) {
+                // Get the selected product brand's details
+                const brandID = element.getAttribute('data-brand-id');
+                const brandName = element.getAttribute('data-brand-name');
+                const brandCountry = element.getAttribute('data-brand-country') || '';
+
+                // Fill the form with the selected product brand's details
+                document.getElementById('currentBrandID').value = brandID;
+                document.getElementById('currentBrandID_display').value = brandID;
+                document.getElementById('newBrandID').value = brandID;
+                document.getElementById('updateBrandName').value = brandName;
+                document.getElementById('updateBrandCountry').value = brandCountry;
+
+                // Scroll to the form so the user doesn't have to 
+                document.getElementById('updateProductBrandForm').scrollIntoView({behavior: 'smooth'});
+            }
+
+            // Function to validate the update form before submission
+            function validateUpdateForm() {
+                // Get the form and input values
+                const form = document.getElementById('update-form');
+                const currentID = form.querySelector('input[name="currentBrandID"]').value.trim();
+                const newID = form.querySelector('input[name="newBrandID"]').value.trim();
+                const brandName = form.querySelector('input[name="brandName"]').value.trim();
+
+                // Check if required fields are filled out
+                if (!currentID || !newID || !brandName) {
+                    alert('Current ID, New ID, and Brand Name are required.');
+                    return false;
+                }
+
+                // Check if the new ID is a positive number
+                if (parseInt(newID) <= 0) {
+                    alert('New Brand ID must be a positive number.');
+                    return false;
+                }
+
+                return true;
+            }
+        </script>
+    </div>
+</body>
+</html>

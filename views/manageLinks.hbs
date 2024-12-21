@@ -1,0 +1,52 @@
+<!-- manageLinks.hbs -->
+
+{{!-- 
+Citations and Attributions:
+
+Base Project:
+- Source: CS 340 Node.js Starter App (Step 8)
+- URL: https://github.com/osu-cs340-ecampus/nodejs-starter-app
+- Usage: Basic template structure and form layouts
+
+External Resources:
+- W3Schools HTML Forms (https://www.w3schools.com/html/html_forms.asp)
+- Usage: Form layout implementation
+
+- MDN Web Docs - HTML Tables (https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table)
+- Usage: Table structure best practices
+--}}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/style.css">
+    <title>Store Management System</title>
+</head>
+<body>
+    {{#if errorMessage}}
+        <div class="error">{{errorMessage}}</div>
+    {{/if}}
+    
+    {{#if successMessage}}
+        <div class="success">{{successMessage}}</div>
+    {{/if}}
+    
+    <div class="container">
+        <h1>Store Management System</h1>
+
+        <!-- Links List -->
+        <p>Select a section to manage:</p>
+        <ul>
+
+            <li><a href="/">Manage Customers: add, update, or delete customer information</a></li>
+            <li><a href="/productBrands">Manage Brands: add, update, or delete brand information</a></li>
+            <li><a href="/storeLocations">Manage Locations: add, update, or delete location information</a></li>
+            <li><a href="/products">Manage Products: add, update, or delete product information</a></li>
+            <li><a href="/orders">Manage Orders: add, update, or delete order information</a></li>
+            <li><a href="/orderHasProducts">Manage Product Orders: add, update, or delete product order information</a></li>
+        </ul>
+    </div>
+</body>
+</html>

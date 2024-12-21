@@ -1,0 +1,196 @@
+<!-- storeLocations.hbs -->
+
+{{!-- 
+Citations and Attributions:
+
+Base Project:
+- Source: CS 340 Node.js Starter App (Step 8)
+- URL: https://github.com/osu-cs340-ecampus/nodejs-starter-app
+- Usage: Basic template structure and form layouts
+
+External Resources:
+- W3Schools HTML Forms (https://www.w3schools.com/html/html_forms.asp)
+- Usage: Form layout implementation
+
+- MDN Web Docs - HTML Tables (https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table)
+- Usage: Table structure best practices
+
+- Bootstrap v5.1 Alert Components (https://getbootstrap.com/docs/5.1/components/alerts/)
+- Usage: Success/error message display system
+
+- MDN Web Docs - Introduction to events (https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/Events)
+- Usage: DOM event handling implementation
+--}}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/style.css">
+    <title>Manage Store Locations - Store Management</title>
+</head>
+<body>
+    
+    <div class="container">
+        <nav>
+            <a href="/manageLinks">Home</a> |
+            <a href="/">Customers</a> |
+            <a href="/productBrands">Brands</a> |
+            <a href="/storeLocations">Locations</a> |
+            <a href="/products">Products</a> |
+            <a href="/orders">Orders</a> |
+            <a href="/orderHasProducts">Product Orders</a>
+        </nav>
+        <h1>Manage Locations</h1>
+
+        <!-- Store Locations List Table -->
+        <h2>Locations List</h2>
+
+        <!-- Message Display Implementation -->
+        {{#if errorMessage}}
+            <div class="error">{{errorMessage}}</div>
+        {{/if}}
+        
+        {{#if successMessage}}
+            <div class="success centered">{{successMessage}}</div>
+        {{/if}}
+
+        <table id="storeLocations-table" border="1" cellpadding="5">
+            <thead>
+                <tr>
+                    <th><a href="#addStoreLocationForm">New</a></th>
+                    <th></th>
+                    <th>Location ID</th>
+                    <th>Location Name</th>
+                    <th>Address</th>
+                    <th>Phone</th>
+                    <th>Open Hours</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Loop through each store location and display the data in a table row -->
+                {{#each data}}
+                <tr data-value="{{this.locationID}}">
+                    <td>
+                        <a href="#updateStoreLocationForm" 
+                           onclick="populateUpdateForm(this)"
+                           data-location-id="{{this.locationID}}"
+                           data-location-name="{{this.locationName}}"
+                           data-address="{{this.address}}"
+                           data-phone="{{this.phone}}"
+                           data-open-hours="{{this.openHours}}">
+                           Update
+                        </a>
+                    </td>
+                    <td>
+                        <a href="javascript:void(0);" onclick="deleteStoreLocation('{{this.locationID}}')">Delete</a>
+                    </td>
+                    <!-- Display store location data -->
+                    <td align="right">{{this.locationID}}</td>
+                    <td>{{this.locationName}}</td>
+                    <td>{{this.address}}</td>
+                    <td>{{this.phone}}</td>
+                    <td>{{this.openHours}}</td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+
+        <!-- Add Store Location Form -->
+        <h2 id="addStoreLocationForm">Add Location</h2>
+        <!-- Form fields for adding a new store location -->
+        <form action="/add-storeLocation-form" method="POST">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+            <label>Location ID: <input type="number" name="locationID" required></label><br>
+            <label>Location Name: <input type="text" name="locationName" required></label><br>
+            <label>Address: <input type="text" name="address" required></label><br>
+            <label>Phone: <input type="tel" name="phone"></label><br>
+            <label>Open Hours: <input type="text" name="openHours"></label><br>
+            <button type="submit">Add Location</button>
+        </form>
+
+        <!-- Update Store Location Form -->
+        <h2 id="updateStoreLocationForm">Update Location</h2>
+        <!-- Form fields for updating an existing store location -->
+        <form id="update-form" action="/update-storeLocation-form" method="POST" onsubmit="return validateUpdateForm()">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+            <label>Current Location ID: 
+                <input type="number" id="currentLocationID_display" name="currentLocationID_display" readonly>
+                <input type="hidden" id="currentLocationID" name="currentLocationID">
+            </label><br>
+            <label>New Location ID: 
+                <input type="number" id="newLocationID" name="newLocationID" required>
+            </label><br>
+            <label>Location Name: 
+                <input type="text" id="locationName" name="locationName" required>
+            </label><br>
+            <label>Address: 
+                <input type="text" id="address" name="address" required>
+            </label><br>
+            <label>Phone: 
+                <input type="tel" id="phone" name="phone">
+            </label><br>
+            <label>Open Hours: 
+                <input type="text" id="openHours" name="openHours">
+            </label><br>
+            <button type="submit">Update Location</button>
+        </form>
+
+        <!-- Include necessary scripts -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="/js/storeLocations.js"></script>
+
+        <!-- JavaScript Functions -->
+        <script>
+            // Populate Update Form: Fills the update form with the selected store location's details
+            function populateUpdateForm(element) {
+                const locationID = element.getAttribute('data-location-id');
+                const locationName = element.getAttribute('data-location-name');
+                const address = element.getAttribute('data-address'); 
+                const phone = element.getAttribute('data-phone') || '';
+                const openHours = element.getAttribute('data-open-hours') || '';
+
+                // Fill the form with the selected store location's details
+                document.getElementById('currentLocationID').value = locationID;
+                document.getElementById('currentLocationID_display').value = locationID;
+                document.getElementById('newLocationID').value = locationID;
+                document.getElementById('locationName').value = locationName;
+                document.getElementById('address').value = address;
+                document.getElementById('phone').value = phone;
+                document.getElementById('openHours').value = openHours;
+
+                document.getElementById('updateStoreLocationForm').scrollIntoView({behavior: 'smooth'});
+            }
+
+            
+            // Validates the store location update form before submission
+            function validateUpdateForm() {
+                // Get reference to the form element
+                const form = document.getElementById('update-form');
+                
+                // Take values from form input fields
+                const currentID = form.querySelector('input[name="currentLocationID"]').value.trim();
+                const newID = form.querySelector('input[name="newLocationID"]').value.trim();
+                const locationName = form.querySelector('input[name="locationName"]').value.trim();
+                const address = form.querySelector('input[name="address"]').value.trim();
+
+                // Check if any required fields are empty
+                if (!currentID || !newID || !locationName || !address) {
+                    alert('Current ID, New ID, Location Name, and Address are required.');
+                    return false;
+                }
+
+                // Check that new ID is a positive number
+                if (parseInt(newID) <= 0) {
+                    alert('New Location ID must be a positive number.');
+                    return false;
+                }
+
+                // If all validations pass, return true
+                return true;
+            }
+        </script>
+    </div>
+</body>
+</html>

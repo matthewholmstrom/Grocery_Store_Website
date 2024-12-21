@@ -1,0 +1,143 @@
+<!-- products.hbs -->
+
+{{!-- 
+Citations and Attributions:
+
+Base Project:
+- Source: CS 340 Node.js Starter App (Step 8)
+- URL: https://github.com/osu-cs340-ecampus/nodejs-starter-app
+- Usage: Basic template structure and form layouts
+
+External Resources:
+- W3Schools HTML Forms (https://www.w3schools.com/html/html_forms.asp)
+- Usage: Form layout implementation
+
+- MDN Web Docs - HTML Tables (https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table)
+- Usage: Table structure best practices
+
+- Bootstrap v5.1 Alert Components (https://getbootstrap.com/docs/5.1/components/alerts/)
+- Usage: Success/error message display system
+
+- MDN Web Docs - Introduction to events (https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/Events)
+- Usage: DOM event handling implementation
+--}}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/style.css">
+    <title>Manage Products - Store Management</title>
+</head>
+<body>
+    
+    <div class="container">
+        <nav>
+            <a href="/manageLinks">Home</a> |
+            <a href="/">Customers</a> |
+            <a href="/productBrands">Brands</a> |
+            <a href="/storeLocations">Locations</a> |
+            <a href="/products">Products</a> |
+            <a href="/orders">Orders</a> |
+            <a href="/orderHasProducts">Product Orders</a>
+        </nav>
+        <h1>Manage Products</h1>
+
+        <!-- Product List Table -->
+        <h2>Product List</h2>
+
+        <!-- Message Display Implementation -->
+        {{#if successMessage}}
+            <div class="success centered">{{successMessage}}</div>
+        {{/if}}
+
+        <table border="1" cellpadding="5">
+            <tr>
+                <th><a href="#addProductForm">New</a></th>
+                <th></th>
+                <th>Product ID</th>
+                <th>Product Name</th>
+                <th>Price</th>
+                <th>Quantity In Stock</th>
+                <th>Quantity Sold</th>
+                <th>Product Category</th>
+                <th>Brand ID</th>
+            </tr>
+
+            <!-- Dynamic data rows for products go here -->
+            <tbody>
+                <!-- Loop through each product and display the data in a table row -->
+                {{#each data}}
+                <tr>
+                    <td><a href="javascript:void(0);" class="update-product" data-product='{{json this}}'>Update</a></td>
+                    <td><a href="javascript:void(0);" class="delete-product" data-product-id="{{this.productID}}">Delete</a></td>
+                    <td align="right">{{this.productID}}</td>
+                    <td align="right">{{this.productName}}</td>
+                    <td align="right">{{this.price}}</td>
+                    <td align="right">{{this.quantityInStock}}</td>
+                    <td align="right">{{this.quantitySold}}</td>
+                    <td align="right">{{this.productCategory}}</td>   
+                    <td>{{this.brandID}}</td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+
+        <!-- Add Product Form -->
+        <h2 id="addProductForm">Add Product</h2>
+        <form action="/add-product-form" method="POST">
+            <!-- Form fields for adding a new product -->
+            <label>Product ID: <input type="number" name="productID" required></label><br>
+            <label>Product Name: <input type="text" name="productName" required></label><br>
+            <label>Price: <input type="number" name="price" step="0.01" required></label><br>
+            <label>Quantity In Stock: <input type="number" name="quantityInStock" required></label><br>
+            <label>Quantity Sold: <input type="number" name="quantitySold" required></label><br>
+            <label>Product Category: <input type="text" name="productCategory" required></label><br>
+            <label>Brand ID: 
+                <select name="brandID">
+                    <option value="">Select Brand ID</option>
+                    <!-- Loop through each brand and display the brand ID in a dropdown menu -->
+                    {{#each brands}}
+                    <option value="{{this.brandID}}">{{this.brandID}}</option>
+                    {{/each}}
+                </select>
+            </label><br>
+            <button type="submit">Add Product</button>
+        </form>
+
+        <!-- Update Product Form -->
+        <h2 id="updateProductForm">Update Product</h2>
+        <!-- Form fields for updating an existing product -->
+        <form id="updateProductForm" action="/update-product-form" method="POST">
+            <input type="hidden" name="currentProductID" id="currentProductID">
+            <label>Product ID: <input type="number" name="newProductID" id="newProductID" required></label><br>
+          
+            <label>Product Name: <input type="text" name="productName" id="updateProductName" required></label><br>
+            <label>Total Price: <input type="number" name="price" id="updatePrice" step="0.01" required></label><br>
+            
+            <label>Quantity In Stock: <input type="number" name="quantityInStock" id="updateQuantityInStock" required></label><br>
+            <label>Quantity Sold: <input type="number" name="quantitySold" id="updateQuantitySold" step="0.01" required></label><br>
+            
+            <label>Product Category: <input type="text" name="productCategory" id="updateProductCategory" required></label><br>
+            
+            
+            <label>Brand ID: 
+                <!-- Dropdown menu for selecting a brand ID -->
+                <select name="brandID" id="updateBrandID">
+                    {{#each brands}}
+                    <option value="{{this.brandID}}">{{this.brandID}}</option>
+                    {{/each}}
+                </select>
+            </label><br>
+            
+            
+            <button type="submit">Update Product</button>
+        </form>
+
+        <!-- Include necessary scripts -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="/js/products.js"></script>
+    </div>
+</body>
+</html>

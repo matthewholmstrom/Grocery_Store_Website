@@ -1,0 +1,72 @@
+/* style.css */
+
+/*
+ * Citations and Attributions:
+ * 
+ * Base Project:
+ * - Source: CS 340 Node.js Starter App (Step 8)
+ * - URL: https://github.com/osu-cs340-ecampus/nodejs-starter-app
+ * 
+ * External Resources:
+ * - CSS Tricks - Complete Guide to Tables (https://css-tricks.com/complete-guide-table-element/)
+ * - Usage: Responsive table styling techniques
+ * 
+ * - Bootstrap v5.1 Documentation (https://getbootstrap.com/docs/5.1/)
+ * - Usage: Form styling and responsive design patterns
+ */
+
+ body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f7f7f7;
+}
+
+h1 {
+    color: #333;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+form, table {
+    margin-top: 20px;
+    width: 100%;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+th {
+    background-color: #f4f4f4;
+}
+
+button {
+    padding: 8px 16px;
+    margin-top: 10px;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.centered {
+    text-align: center;
+    color: #0056b3;
+}
