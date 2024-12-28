@@ -1,37 +1,228 @@
 <!-- index.hbs -->
-<h1>The server is running!</h1>
-<p>If you see this text, the server is <strong>definitely</strong> working!</p>
 
+{{!-- 
+Citations and Attributions:
 
-{{!-- Create a table --}}
-<table>
+Base Project:
+- Source: CS 340 Node.js Starter App (Step 8)
+- URL: https://github.com/osu-cs340-ecampus/nodejs-starter-app
+- Usage: Basic template structure and form layouts
 
-    {{!-- Header section --}}
-    <thead>
+External Resources:
+- W3Schools HTML Forms (https://www.w3schools.com/html/html_forms.asp)
+- Usage: Form layout implementation
 
-        {{!-- For just the first row, we print each key of the row object as a header cell so we
-        know what each column means when the page renders --}}
-        <tr>
-            {{#each data.[0]}}
-            <th>
-                {{@key}}
-            </th>
-            {{/each}}
-        </tr>
-    </thead>
+- MDN Web Docs - HTML Tables (https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table)
+- Usage: Table structure best practices
 
-    {{!-- Body section --}}
-    <tbody>
+- Bootstrap v5.1 Alert Components (https://getbootstrap.com/docs/5.1/components/alerts/)
+- Usage: Success/error message display system
 
-        {{!-- For each row, print the id, fname, lname, homeworld and age, in order --}}
-        {{#each data}}
-        <tr>
-            <td>{{this.customerID}}</td>
-            <td>{{this.name}}</td>
-            <td>{{this.email}}</td>
-            <td>{{this.phone}}</td>
-            <td>{{this.address}}</td>
-        </tr>
-        {{/each}}
-    </tbody>
-</table>
+- MDN Web Docs - Introduction to events (https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/Events)
+- Usage: DOM event handling implementation
+--}}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/style.css">
+    <title>Manage Customers - Store Management</title>
+</head>
+<body>
+
+    <div class="container">
+        <nav>
+            <a href="/manageLinks">Home</a> |
+            <a href="/">Customers</a> |
+            <a href="/productBrands">Brands</a> |
+            <a href="/storeLocations">Locations</a> |
+            <a href="/products">Products</a> |
+            <a href="/orders">Orders</a> |
+            <a href="/orderHasProducts">Product Orders</a>
+        </nav>
+        <h1>Manage Customers</h1>
+
+        <!-- Customer List Table -->
+        <h2>Customer List</h2>
+
+        {{!-- Message Display Implementation:
+        - Source: Bootstrap v5.1 Alert Components
+        - URL: https://getbootstrap.com/docs/5.1/components/alerts/
+        --}}
+        {{#if successMessage}}
+            <div class="success centered">{{successMessage}}</div>
+        {{/if}}
+        {{#if errorMessage}}
+            <div class="error">{{errorMessage}}</div>
+        {{/if}}
+
+        <!-- Table of Customers -->
+        <table id="customers-table" border="1" cellpadding="5">
+            <thead>
+                <tr>
+                    <th><a href="#addCustomerForm">New</a></th>
+                    <th></th>
+                    <th>Customer ID</th>
+                    <th>Customer Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Address</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{!-- Iterate through each customer record in the 'data' array passed from the server --}}
+                {{#each data}}
+                <tr data-value="{{this.customerID}}">
+                    <td>
+                        {{!-- Update link that opens a form and autofills it with customer data --}}
+                        <a href="#updateCustomerForm" 
+                            {{!-- Calls JavaScript function when link is clicked --}}
+                            onclick="populateUpdateForm(this)"
+                            {{!-- Attributes store customer information that will be used by the JS --}}
+                            data-customer-id="{{this.customerID}}"
+                            data-name="{{this.name}}"
+                            data-email="{{this.email}}"
+                            data-phone="{{this.phone}}"
+                            data-address="{{this.address}}">
+                            Update
+                        </a>
+                    </td>
+                    <td>
+                        <!-- Delete Customer Link -->
+                        <a href="javascript:void(0);" onclick="deleteCustomer('{{this.customerID}}')">Delete</a>
+                    </td>
+                    <!-- Customer Details -->
+                    <td align="right">{{this.customerID}}</td>
+                    <td>{{this.name}}</td>
+                    <td>{{this.email}}</td>
+                    <td>{{this.phone}}</td>
+                    <td>{{this.address}}</td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+
+        <!-- Add Customer Form -->
+        <h2 id="addCustomerForm">Add Customer</h2>
+        <form action="/add-customer-form" method="POST">
+            <label>Customer Name: <input type="text" name="name" required></label><br>
+            <label>Email: <input type="email" name="email" required></label><br>
+            <label>Phone: <input type="tel" name="phone"></label><br>
+            <label>Address: <input type="text" name="address"></label><br>
+            <button type="submit">Add Customer</button>
+        </form>
+
+        {{!-- Form Implementation:
+            - Source: CS 340 Node.js Starter App (Step 8)
+            - URL: https://github.com/osu-cs340-ecampus/nodejs-starter-app
+            - Changes: Added custom validation
+        --}}
+
+        {{!-- Update Customer Form: Allows modifying existing customer details --}}
+        <form id="update-form" action="/update-customer-form" method="POST" onsubmit="return validateUpdateForm()">
+            {{!-- Current Customer ID --}}
+            <label>Current Customer ID: 
+                {{!-- Input for visual reference --}}
+                <input type="number" id="currentCustomerID_display" name="currentCustomerID_display" readonly>
+                {{!-- Hidden input to store actual ID for form submission --}}
+                <input type="hidden" id="currentCustomerID" name="currentCustomerID">
+            </label><br>
+            
+            {{!-- New User submitted Customer ID --}}
+            <label>New Customer ID: 
+                <input type="number" id="newCustomerID" name="newCustomerID" required>
+            </label><br>
+            
+            {{!-- Customer Name --}}
+            <label>Customer Name: 
+                <input type="text" id="updateName" name="name" required>
+            </label><br>
+            
+            {{!-- Email Address --}}
+            <label>Email: 
+                <input type="email" id="updateEmail" name="email" required>
+            </label><br>
+            
+            {{!-- Phone Number --}}
+            <label>Phone: 
+                <input type="tel" id="updatePhone" name="phone">
+            </label><br>
+            
+            {{!-- Physical Address --}}
+            <label>Address: 
+                <input type="text" id="updateAddress" name="address">
+            </label><br>
+            
+            {{!-- Submit button will trigger form validation before submission --}}
+            <button type="submit">Update Customer</button>
+        </form>
+
+        <!-- Include necessary scripts -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="/js/delete_person.js"></script>
+
+        <!-- JavaScript Functions -->
+        <script>
+            /*
+             * Populate Update Form:
+             * - Fills the update form with the selected customer's details
+             * - Scrolls to the form for user convenience
+             */
+            function populateUpdateForm(element) {
+                const customerID = element.getAttribute('data-customer-id');
+                const name = element.getAttribute('data-name');
+                const email = element.getAttribute('data-email'); 
+                const phone = element.getAttribute('data-phone') || '';
+                const address = element.getAttribute('data-address') || '';
+
+                // Fill the form with the selected customer's details
+                document.getElementById('currentCustomerID').value = customerID;
+                document.getElementById('currentCustomerID_display').value = customerID;
+                document.getElementById('newCustomerID').value = customerID;
+                document.getElementById('updateName').value = name;
+                document.getElementById('updateEmail').value = email;
+                document.getElementById('updatePhone').value = phone;
+                document.getElementById('updateAddress').value = address;
+
+                // Scroll to the form so the user doesn't have to
+                document.getElementById('updateCustomerForm').scrollIntoView({behavior: 'smooth'});
+            }
+            
+            /*
+             * Form Validation Implementation:
+             * - Source: CS 340 Node.js Starter App (Step 8)
+             * - URL: https://github.com/osu-cs340-ecampus/nodejs-starter-app
+             * - Changes: Added custom field validation for IDs, name, and email based on previous courses
+             */
+
+            /* 
+             * Validate Update Form:
+             * - Validates the update form fields before submission
+             * - Ensures all required fields are filled and new ID is a positive number
+             */
+            function validateUpdateForm() {
+                const form = document.getElementById('update-form');
+                const currentID = form.querySelector('input[name="currentCustomerID"]').value.trim();
+                const newID = form.querySelector('input[name="newCustomerID"]').value.trim();
+                const name = form.querySelector('input[name="name"]').value.trim();
+                const email = form.querySelector('input[name="email"]').value.trim();
+
+                if (!currentID || !newID || !name || !email) {
+                    alert('Current ID, New ID, Name, and Email are required.');
+                    return false;
+                }
+
+                if (parseInt(newID) <= 0) {
+                    alert('New Customer ID must be a positive number.');
+                    return false;
+                }
+
+                return true;
+            }
+        </script>
+    </div>
+</body>
+</html>
+
